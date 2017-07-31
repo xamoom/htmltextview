@@ -2,18 +2,31 @@ package com.android.xamoom.htmltextview
 
 
 import android.content.Context
-import android.text.Html
+import android.text.TextPaint
 import android.widget.TextView
 import org.jsoup.Jsoup
 
 class HtmlTextView(context: Context) : TextView(context) {
   var htmlString: String? = null
+  var tables: ArrayList<HtmlTable> = ArrayList()
 
-  public fun setHtmlText(htmlString: String) {
+  /**
+   * Set html as String to display in the textView.
+   *
+   * @param htmlString String of html
+   */
+  fun setHtmlText(htmlString: String) {
     this.htmlString = htmlString
     text = replaceStyle(htmlString)
+    tables = tablesFromHtml(htmlString, paint)
   }
 
+  /**
+   * Replaces non supported html with textview supported htmltags and replaces
+   * tags with custom tags to enable the tagHandler to handle them.
+   *
+   * @param text String of html
+   */
   private fun replaceStyle(text: String): String {
     val document = Jsoup.parse(text)
     val elements = document.select("span")
@@ -47,7 +60,7 @@ class HtmlTextView(context: Context) : TextView(context) {
           var fontSizeString = p1!!.substring(indexFontSizeValue, indexFontSizeSemiColon);
           fontSizeString = fontSizeString.replace(" ", "")
 
-          val name = "<FONTSIZE"+fontSizeString+"></FONTSIZE"+fontSizeString+">";
+          val name = "<fontsize"+fontSizeString+"></fontsize"+fontSizeString+">";
           element.wrap(name)
         }
       }
@@ -84,5 +97,23 @@ class HtmlTextView(context: Context) : TextView(context) {
     }
 
     return document.html()
+  }
+
+  /**
+   * Returns HTMLTable ArrayList with all tables found in html.
+   *
+   * @param html String of html
+   * @param textPaint TextPaint from TextView
+   * @return ArrayList<HtmlTable> found in html string
+   */
+  fun tablesFromHtml(html: String, textPaint: TextPaint) : ArrayList<HtmlTable> {
+    val document = Jsoup.parse(html)
+
+    val tables: ArrayList<HtmlTable> = ArrayList()
+
+    val tablesTags = document.select("table")
+    tablesTags.mapTo(tables) { HtmlTable(it.toString(), textPaint) }
+
+    return tables
   }
 }
