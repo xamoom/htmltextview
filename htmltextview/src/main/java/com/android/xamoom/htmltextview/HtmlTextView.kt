@@ -2,13 +2,23 @@ package com.android.xamoom.htmltextview
 
 
 import android.content.Context
+import android.content.res.Resources
+import android.text.Html
 import android.text.TextPaint
+import android.util.AttributeSet
+import android.util.Log
 import android.widget.TextView
 import org.jsoup.Jsoup
+import java.io.InputStream
+import java.util.*
 
-class HtmlTextView(context: Context) : TextView(context) {
+class HtmlTextView constructor(context: Context, attributeSet: AttributeSet) :
+    TextView(context, attributeSet) {
+  val TAG = "HtmlTextView"
+
   var htmlString: String? = null
   var tables: ArrayList<HtmlTable> = ArrayList()
+
 
   /**
    * Set html as String to display in the textView.
@@ -17,8 +27,36 @@ class HtmlTextView(context: Context) : TextView(context) {
    */
   fun setHtmlText(htmlString: String) {
     this.htmlString = htmlString
-    text = replaceStyle(htmlString)
+    text = Html.fromHtml(replaceStyle(htmlString))
     tables = tablesFromHtml(htmlString, paint)
+  }
+
+  /**
+   * Set html as resource.
+   *
+   * @param htmlResource Resource id of html
+   */
+  fun setHtmlText(htmlResource: Int) {
+    val inputStreamText: InputStream?
+
+    try {
+      inputStreamText = context.resources.openRawResource(htmlResource)
+    } catch (exception: Resources.NotFoundException) {
+      Log.e(TAG, "Provided resource not found.")
+      return
+    }
+
+    setHtmlText(convertStreamToString(inputStreamText))
+  }
+
+  /**
+   * Converts inputStream to text.
+   *
+   * @param is InputStream
+   */
+  private fun convertStreamToString(`is`: InputStream): String {
+    val s = Scanner(`is`).useDelimiter("\\A")
+    return if (s.hasNext()) s.next() else ""
   }
 
   /**
