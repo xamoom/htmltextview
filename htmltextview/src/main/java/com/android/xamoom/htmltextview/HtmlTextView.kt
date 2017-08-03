@@ -12,23 +12,25 @@ import org.jsoup.Jsoup
 import java.io.InputStream
 import java.util.*
 
-class HtmlTextView constructor(context: Context, attributeSet: AttributeSet) :
+class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
     TextView(context, attributeSet) {
   val TAG = "HtmlTextView"
 
   var htmlString: String? = null
   var tables: ArrayList<HtmlTable> = ArrayList()
 
+  constructor(context: Context) : this(context, null)
 
   /**
    * Set html as String to display in the textView.
    *
    * @param htmlString String of html
    */
-  fun setHtmlText(htmlString: String) {
-    this.htmlString = htmlString
-    text = Html.fromHtml(replaceStyle(htmlString))
+  fun setHtmlText(htmlString: String, maxTableWidth: Int = 0) {
+    this.htmlString = replaceStyle(htmlString)
     tables = tablesFromHtml(htmlString, paint)
+    text = Html.fromHtml(this.htmlString, null,
+        HtmlTagHandler(densityTextSize(context), paint, tables, maxTableWidth))
   }
 
   /**
@@ -57,6 +59,10 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet) :
   private fun convertStreamToString(`is`: InputStream): String {
     val s = Scanner(`is`).useDelimiter("\\A")
     return if (s.hasNext()) s.next() else ""
+  }
+
+  private fun densityTextSize(context: Context): Float {
+    return textSize / context.resources.displayMetrics.density
   }
 
   /**

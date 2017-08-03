@@ -17,6 +17,4 @@ class MainActivity : AppCompatActivity() {
 
     htmlTextView.setHtmlText(R.raw.test)
   }
-
-
 }

@@ -50,7 +50,7 @@ class HtmlTextViewTest {
         "\n   </tbody>" +
         "\n  </htmltable>" +
         "\n </body>" +
-        "\n</html>", textView.text)
+        "\n</html>", textView.htmlString)
   }
 
   @Test

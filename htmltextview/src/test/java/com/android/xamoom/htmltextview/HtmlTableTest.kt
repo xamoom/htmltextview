@@ -18,13 +18,23 @@ class HtmlTableTest {
         "<td>Some</td>" +
         "<td>More Data</td>" +
         "</tr>" +
+        "<tr>" +
+        "<td>Some</td>" +
+        "<td>More Data</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<td>Some</td>" +
+        "<td>Let it be the biggest cell!</td>" +
+        "</tr>" +
         "</table>"
 
     val htmlTable = HtmlTable(htmlString, TextPaint())
 
-    Assert.assertEquals(1, htmlTable.rows.size)
+    Assert.assertEquals(3, htmlTable.rows.size)
     Assert.assertEquals(2, htmlTable.cellsPerRow[0].size)
     Assert.assertEquals(2, htmlTable.cellSizes.size)
     Assert.assertEquals(2, htmlTable.largestCellSize.size)
   }
+
+
 }
