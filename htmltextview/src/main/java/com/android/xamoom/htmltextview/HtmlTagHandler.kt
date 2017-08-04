@@ -4,6 +4,7 @@ import android.text.*
 import android.text.style.BulletSpan
 import android.text.style.LeadingMarginSpan
 import android.text.style.RelativeSizeSpan
+import android.util.Log
 import com.android.xamoom.htmltextview.Spans.CustomBulletSpan
 import com.android.xamoom.htmltextview.Spans.NumberSpan
 import com.android.xamoom.htmltextview.Spans.TableCellSpan
@@ -11,9 +12,10 @@ import org.xml.sax.XMLReader
 import java.util.*
 
 class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
-                     tables: ArrayList<HtmlTable>, val maxTableWidth: Int) : Html.TagHandler {
+                     tables: ArrayList<HtmlTable>, var maxTableWidth: Int) : Html.TagHandler {
 
   companion object {
+    var DEBUG = false
     @JvmStatic val TAG_FONTSIZE = "fontsize"
     @JvmStatic val TAG_UNORDEREDLIST = "unorderedlist"
     @JvmStatic val TAG_ORDEREDLIST = "orderedlist"
@@ -100,7 +102,7 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
         adjustTableCellSizes()
         val startOffset = cellStartOffset()
         end(output as SpannableStringBuilder, TableCell::class.java,
-            TableCellSpan(startOffset, tableRowBackgroundColors.peek()))
+            TableCellSpan(startOffset, tableStack.peek().cellSizes[tableCells.size - 1].toInt(), tableRowBackgroundColors.peek()))
       } else if (tag.contentEquals(TAG_TABLE)) {
         tableStack.pop()
       }
@@ -109,7 +111,7 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
 
   /**
    * Adds a newline "\n" at the end of the text. Needed for different spans.
-   * 
+   *
    * @param text Editable text.
    * @return Editable text with added newline
    */
@@ -182,6 +184,9 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
       }
     }
 
+    if (DEBUG) Log.d("HtmlTagHandler", "Cell startOffset for index " + tableCells.size + " with " +
+        startOffset)
+
     return startOffset
   }
 
@@ -194,6 +199,10 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
     if (maxTableWidth > tableStack.peek().maximalRowSize()) {
       val largestSizeIndex = tableStack.peek().cellSizes.indexOf(tableStack.peek().cellSizes.max())
       val availableSpaceForWidth = maxTableWidth - tableStack.peek().maximalRowSize()
+
+      if (DEBUG) Log.d("HtmlTagHandler", "Adjusting cellSize: " + largestSizeIndex + " from " +
+          tableStack.peek().maximalRowSize() + " to " + availableSpaceForWidth)
+
       tableStack.peek().cellSizes[largestSizeIndex] += availableSpaceForWidth
     }
   }

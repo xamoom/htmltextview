@@ -16,6 +16,16 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
     TextView(context, attributeSet) {
   val TAG = "HtmlTextView"
 
+
+
+  companion object {
+    var DEBUG = false
+      set(value) {
+        field = value
+        HtmlTagHandler.DEBUG = value
+      }
+  }
+
   var htmlString: String? = null
   var tables: ArrayList<HtmlTable> = ArrayList()
 
