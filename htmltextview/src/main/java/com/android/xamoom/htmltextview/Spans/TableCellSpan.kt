@@ -5,7 +5,7 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.text.style.ReplacementSpan
 
-class TableCellSpan(val startOffset: Float, backgroundColor: Int?, val padding: Int = 0) :
+class TableCellSpan(val startOffset: Float, val width: Int, backgroundColor: Int?, val padding: Int = 0) :
     ReplacementSpan() {
   var backgroundPaint: Paint? = null
 
@@ -24,7 +24,7 @@ class TableCellSpan(val startOffset: Float, backgroundColor: Int?, val padding: 
   override fun draw(c: Canvas?, text: CharSequence?, start: Int, end: Int, x: Float, top: Int,
                     y: Int, bottom: Int, paint: Paint?) {
     if (backgroundPaint != null) {
-      c?.drawRect(Rect(startOffset.toInt(), top, y, bottom), backgroundPaint)
+      c?.drawRect(Rect(startOffset.toInt(), top, startOffset.toInt() + width, bottom), backgroundPaint)
     }
     c?.drawText(text, start, end, startOffset, y.toFloat(), paint)
   }

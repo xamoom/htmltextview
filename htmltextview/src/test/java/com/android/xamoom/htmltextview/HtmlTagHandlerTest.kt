@@ -1,24 +1,22 @@
 package com.android.xamoom.htmltextview
 
-import android.text.*
+import android.text.Editable
+import android.text.TextPaint
 import android.text.style.BulletSpan
 import android.text.style.LeadingMarginSpan
 import android.text.style.RelativeSizeSpan
 import com.android.xamoom.htmltextview.Spans.CustomBulletSpan
 import com.android.xamoom.htmltextview.Spans.NumberSpan
 import com.android.xamoom.htmltextview.Spans.TableCellSpan
-import org.hamcrest.Matcher
-import org.hamcrest.Matchers
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
+import org.mockito.Mockito.inOrder
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.mockito.Mockito.inOrder
-import org.mockito.ArgumentCaptor
-import org.mockito.Mockito.verify
 
 
 @RunWith(RobolectricTestRunner::class)
