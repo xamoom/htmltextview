@@ -7,16 +7,17 @@ import android.text.Html
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.util.Log
+import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.TextView
 import org.jsoup.Jsoup
 import java.io.InputStream
 import java.util.*
 
+
 class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
     TextView(context, attributeSet) {
   val TAG = "HtmlTextView"
-
-
 
   companion object {
     var DEBUG = false
@@ -28,37 +29,105 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
 
   var htmlString: String? = null
   var tables: ArrayList<HtmlTable> = ArrayList()
+  var htmlTagHandler: HtmlTagHandler? = null
 
   constructor(context: Context) : this(context, null)
 
   /**
    * Set html as String to display in the textView.
    *
+   * If the htmlString contains one or multiple tables, the textview
+   * will wait for getting a measuring of it's width before it will
+   * start displaying the string.
+   *
+   * You can jump over this process, by providing a maximal width.
+   *
+   * @see setHtmlText(String, Int)
+   *
    * @param htmlString String of html
+   */
+  fun setHtmlText(htmlString: String) {
+    this.htmlString = replaceStyle(htmlString)
+    tables = tablesFromHtml(htmlString, paint)
+
+    if (tables.size > 0) {
+      afterMeasured {
+        htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, width)
+        text = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
+      }
+    } else {
+      htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, 0)
+      text = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
+    }
+  }
+
+  /**
+   * Set html as String to display in the textView.
+   *
+   * @param htmlString String of html
+   * @param maxTableWidth Max width to scale table to
    */
   fun setHtmlText(htmlString: String, maxTableWidth: Int = 0) {
     this.htmlString = replaceStyle(htmlString)
     tables = tablesFromHtml(htmlString, paint)
-    text = Html.fromHtml(this.htmlString, null,
-        HtmlTagHandler(densityTextSize(context), paint, tables, maxTableWidth))
+
+    if (maxTableWidth == 0 && tables.size > 0) {
+      setHtmlText(htmlString)
+    } else {
+      htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, maxTableWidth)
+      text = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
+    }
+  }
+
+  /**
+   * Set html as resource.
+   *
+   * * If the htmlString contains one or multiple tables, the textview
+   * will wait for getting a measuring of it's width before it will
+   * start displaying the string.
+   *
+   * You can jump over this process, by providing a maximal width.
+   *
+   * @param htmlResource Resource id of html
+   * @see setHtmlText(Int, Int)
+   */
+  fun setHtmlText(htmlResource: Int) {
+    val text = rawToString(htmlResource)
+    if (text != null) {
+      setHtmlText(text)
+    }
   }
 
   /**
    * Set html as resource.
    *
    * @param htmlResource Resource id of html
+   * @param maxTableWidth Max width to scale table to
    */
-  fun setHtmlText(htmlResource: Int) {
+  fun setHtmlText(htmlResource: Int, maxTableWidth: Int = 0) {
+    val text = rawToString(htmlResource)
+    if (text != null) {
+      setHtmlText(text, maxTableWidth)
+    }
+  }
+
+  /**
+   * Converts raw resources to String or null.
+   *
+   * @param Raw resource id with html
+   * @return String or null
+   */
+  private fun rawToString(htmlResource: Int): String? {
     val inputStreamText: InputStream?
 
     try {
       inputStreamText = context.resources.openRawResource(htmlResource)
     } catch (exception: Resources.NotFoundException) {
       Log.e(TAG, "Provided resource not found.")
-      return
+      return null
     }
 
-    setHtmlText(convertStreamToString(inputStreamText))
+    return convertStreamToString(inputStreamText)
   }
 
   /**
@@ -69,6 +138,21 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
   private fun convertStreamToString(`is`: InputStream): String {
     val s = Scanner(`is`).useDelimiter("\\A")
     return if (s.hasNext()) s.next() else ""
+  }
+
+  /**
+   * Helper for removing viewTrees observer.
+   * Source from: https://antonioleiva.com/kotlin-ongloballayoutlistener/
+   */
+  inline fun <T: View> T.afterMeasured(crossinline f: T.() -> Unit) {
+    viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+      override fun onGlobalLayout() {
+        if (measuredWidth > 0 && measuredHeight > 0) {
+          viewTreeObserver.removeOnGlobalLayoutListener(this)
+          f()
+        }
+      }
+    })
   }
 
   private fun densityTextSize(context: Context): Float {
@@ -171,3 +255,4 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
     return tables
   }
 }
+
