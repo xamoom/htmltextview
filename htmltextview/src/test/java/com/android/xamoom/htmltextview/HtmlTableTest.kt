@@ -8,7 +8,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class)
+@Config(constants = BuildConfig::class, sdk = intArrayOf(22))
 class HtmlTableTest {
 
   @Test

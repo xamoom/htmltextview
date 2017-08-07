@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.text.Html
 import android.text.TextPaint
+import android.text.method.LinkMovementMethod
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
@@ -33,6 +34,10 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
 
   constructor(context: Context) : this(context, null)
 
+  init {
+    movementMethod = LinkMovementMethod.getInstance()
+  }
+
   /**
    * Set html as String to display in the textView.
    *
@@ -52,7 +57,7 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
 
     if (tables.size > 0) {
       afterMeasured {
-        htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, width)
+        htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, widthWithoutPadding())
         text = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
       }
     } else {
@@ -235,6 +240,10 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
     }
 
     return document.html()
+  }
+
+  fun widthWithoutPadding(): Int {
+    return width - paddingLeft - paddingRight
   }
 
   /**
