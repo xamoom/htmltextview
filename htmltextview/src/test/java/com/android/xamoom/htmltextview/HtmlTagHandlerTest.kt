@@ -124,8 +124,11 @@ class HtmlTagHandlerTest {
 
   @Test
   fun testHandlerTagOrderedListMultiple() {
-    tagHandler?.lists?.add(HtmlTagHandler.TAG_UNORDEREDLIST)
-    tagHandler?.lists?.add(HtmlTagHandler.TAG_UNORDEREDLIST)
+    tagHandler?.lists?.add(HtmlTagHandler.TAG_ORDEREDLIST)
+    tagHandler?.lists?.add(HtmlTagHandler.TAG_ORDEREDLIST)
+    tagHandler?.orderedListItems?.add(1)
+    tagHandler?.orderedListItems?.add(1)
+    tagHandler?.listSizeChanged = false
 
     Assert.assertEquals(2, tagHandler?.lists?.size)
 
@@ -133,14 +136,11 @@ class HtmlTagHandlerTest {
     spannableMock?.append("Something")
     tagHandler?.handleTag(false, HtmlTagHandler.TAG_LISTITEM, spannableMock, null)
 
-    val numberCapure = ArgumentCaptor.forClass(CustomBulletSpan::class.java)
-    val inOrder = inOrder(spannableMock, spannableMock)
+    val numberCapure = ArgumentCaptor.forClass(NumberSpan::class.java)
 
-    inOrder.verify(spannableMock!!).setSpan(Mockito.any(LeadingMarginSpan::class.java),
+    Mockito.verify(spannableMock!!, Mockito.times(2)).setSpan(numberCapure.capture(),
             Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())
-    inOrder.verify(spannableMock!!).setSpan(numberCapure.capture(),
-            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())
-    Assert.assertEquals(60, numberCapure.value.leading)
+    Assert.assertEquals(60, numberCapure.value.leadingMargin)
   }
 
   @Test

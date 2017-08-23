@@ -88,6 +88,7 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
       } else if (tag.contains(TAG_ORDEREDLIST)) {
         lists.pop()
         listSizeChanged = true
+        orderedListItems.remove(orderedListItems.last())
       } else if (tag.contains(TAG_LISTITEM)) {
         val text = appendNewLine(output)
         if (lists.peek() == TAG_UNORDEREDLIST) { // uls
