@@ -1,7 +1,6 @@
 package com.android.xamoom.htmltextview
 
 import android.text.*
-import android.text.style.BulletSpan
 import android.text.style.LeadingMarginSpan
 import android.text.style.RelativeSizeSpan
 import android.util.Log
@@ -10,6 +9,7 @@ import com.android.xamoom.htmltextview.Spans.NumberSpan
 import com.android.xamoom.htmltextview.Spans.TableCellSpan
 import org.xml.sax.XMLReader
 import java.util.*
+import kotlin.collections.ArrayList
 
 class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
                      tables: ArrayList<HtmlTable>, var maxTableWidth: Int) : Html.TagHandler {
@@ -25,16 +25,18 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
     @JvmStatic val TAG_TABLE_CELL = "tablecell"
   }
 
-  val paragraphIndent = 20
+  val paragraphIndent = 30
   val bulletMargin = 10
 
   var lists: Stack<String> = Stack()
-  var orderedListItems: Stack<Int> = Stack()
+  var orderedListItems: ArrayList<Int> = ArrayList()
+  var unorderedListItems: Stack<Int> = Stack()
 
   var tableStack: Stack<HtmlTable> = Stack()
   var tableRowBackgroundColors: Stack<Int> = Stack()
   var tableCells: Stack<String> = Stack()
 
+  var listSizeChanged = false
 
   class FontSize
   class ListItem
@@ -55,12 +57,15 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
         start(output as SpannableStringBuilder, FontSize())
       } else if (tag.contains(TAG_UNORDEREDLIST)) {
         lists.add(tag)
+        unorderedListItems.push(1)
+        listSizeChanged = false
       } else if (tag.contains(TAG_ORDEREDLIST)) {
         lists.add(tag)
-        orderedListItems.push(1)
+        orderedListItems.add(1)
+        listSizeChanged = false
       } else if (tag.contains(TAG_LISTITEM)) {
         if (lists.peek() == TAG_ORDEREDLIST) {
-          orderedListItems.push(orderedListItems.pop() + 1)
+          orderedListItems[lists.size - 1] = orderedListItems[lists.size - 1] + 1
         }
         start(output as SpannableStringBuilder, ListItem())
       } else if (tag.contentEquals(TAG_TABLE)) {
@@ -79,16 +84,29 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
             RelativeSizeSpan(relativeSpanSize))
       } else if (tag.contains(TAG_UNORDEREDLIST)) {
         lists.pop()
+        listSizeChanged = true
       } else if (tag.contains(TAG_ORDEREDLIST)) {
         lists.pop()
+        listSizeChanged = true
       } else if (tag.contains(TAG_LISTITEM)) {
         val text = appendNewLine(output)
         if (lists.peek() == TAG_UNORDEREDLIST) { // uls
-          val bullet = createBulletListItem()
+          if (listSizeChanged) {
+            end(text as SpannableStringBuilder, ListItem::class.java,
+                    LeadingMarginSpan.Standard(paragraphIndent))
+            listSizeChanged = false
+            return
+          }
+          val bullet = CustomBulletSpan(bulletMargin, calculateListItemOffset())
           end(text as SpannableStringBuilder, ListItem::class.java,
               LeadingMarginSpan.Standard(paragraphIndent), bullet)
         } else { // ols
           val text = appendNewLine(output)
+          if (listSizeChanged) {
+            end(text as SpannableStringBuilder, ListItem::class.java)
+            listSizeChanged = false
+            return
+          }
           val numberSpan = NumberSpan(calculateListItemOffset(),
               currentNumberSpanString(), textPaint)
           end(text as SpannableStringBuilder, ListItem::class.java, numberSpan)
@@ -102,7 +120,8 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
         adjustTableCellSizes()
         val startOffset = cellStartOffset()
         end(output as SpannableStringBuilder, TableCell::class.java,
-            TableCellSpan(startOffset, tableStack.peek().cellSizes[tableCells.size - 1].toInt(), tableRowBackgroundColors.peek()))
+            TableCellSpan(startOffset, tableStack.peek().cellSizes[tableCells.size - 1].toInt(),
+                    tableRowBackgroundColors.peek()))
       } else if (tag.contentEquals(TAG_TABLE)) {
         tableStack.pop()
       }
@@ -145,29 +164,12 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
   }
 
   /**
-   * Returns the right BulletSpan needed for any level of the list.
-   * If there are multiple lists encapsulated it will return a CustomBulletSpan with
-   * the correct margins depending on the encapsulation depth.
-   *
-   * @return BulletSpan or CustomBulletSpan
-   */
-  private fun createBulletListItem() : Any {
-    var newBullet = BulletSpan(bulletMargin)
-    if (lists.size > 1) {
-      newBullet = CustomBulletSpan(bulletMargin,
-          calculateListItemOffset())
-    }
-
-    return newBullet
-  }
-
-  /**
    * Returns the offset for listitems.
    *
    * @return offset for listitems
    */
   private fun calculateListItemOffset(): Int {
-    return (paragraphIndent - 2) * (lists.size + (lists.size - 1))
+    return paragraphIndent * lists.size
   }
 
   /**
@@ -212,7 +214,7 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
    * for ordered lists.
    */
   private fun currentNumberSpanString(): String {
-    return (orderedListItems.lastElement() - 1).toString()
+    return (orderedListItems[lists.size - 1] - 1).toString()
   }
 
   private fun <T> getLast(text: Spanned, kind: Class<T>): Any? {

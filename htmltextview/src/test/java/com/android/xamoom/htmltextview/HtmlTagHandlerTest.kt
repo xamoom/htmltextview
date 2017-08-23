@@ -103,7 +103,7 @@ class HtmlTagHandlerTest {
         Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())
     inOrder.verify(spannableMock!!).setSpan(bulletCapture.capture(),
         Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())
-    Assert.assertEquals(54, bulletCapture.value.leading)
+    Assert.assertEquals(60, bulletCapture.value.leading)
   }
 
   @Test
@@ -120,6 +120,27 @@ class HtmlTagHandlerTest {
     Assert.assertEquals(0, tagHandler?.lists?.size)
     Mockito.verify(spannableMock!!).setSpan(Mockito.any(NumberSpan::class.java),
         Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())
+  }
+
+  @Test
+  fun testHandlerTagOrderedListMultiple() {
+    tagHandler?.lists?.add(HtmlTagHandler.TAG_UNORDEREDLIST)
+    tagHandler?.lists?.add(HtmlTagHandler.TAG_UNORDEREDLIST)
+
+    Assert.assertEquals(2, tagHandler?.lists?.size)
+
+    tagHandler?.handleTag(true, HtmlTagHandler.TAG_LISTITEM, spannableMock, null)
+    spannableMock?.append("Something")
+    tagHandler?.handleTag(false, HtmlTagHandler.TAG_LISTITEM, spannableMock, null)
+
+    val numberCapure = ArgumentCaptor.forClass(CustomBulletSpan::class.java)
+    val inOrder = inOrder(spannableMock, spannableMock)
+
+    inOrder.verify(spannableMock!!).setSpan(Mockito.any(LeadingMarginSpan::class.java),
+            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())
+    inOrder.verify(spannableMock!!).setSpan(numberCapure.capture(),
+            Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())
+    Assert.assertEquals(60, numberCapure.value.leading)
   }
 
   @Test
