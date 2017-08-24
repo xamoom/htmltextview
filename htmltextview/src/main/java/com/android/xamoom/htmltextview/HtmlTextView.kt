@@ -150,6 +150,9 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
    * Source from: https://antonioleiva.com/kotlin-ongloballayoutlistener/
    */
   inline fun <T: View> T.afterMeasured(crossinline f: T.() -> Unit) {
+    if (measuredWidth > 0) {
+      f()
+    }
     viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
       override fun onGlobalLayout() {
         if (measuredWidth > 0 && measuredHeight > 0) {
