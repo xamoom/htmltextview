@@ -1,5 +1,7 @@
 # HtmlTextView
 
+[ ![Download](https://api.bintray.com/packages/xamoom/maven/htmltextview/images/download.svg) ](https://bintray.com/xamoom/maven/htmltextview/_latestVersion)
+
 Custom TextView with increased abilities to display html.
 
 It extends the textViews ability to also display:
@@ -7,6 +9,12 @@ It extends the textViews ability to also display:
 * nested ol
 * nested ul
 * tables
+
+# Install
+
+```
+compile 'com.xamoom.android:htmltextview:1.0.0'
+```
 
 
 # Usage
