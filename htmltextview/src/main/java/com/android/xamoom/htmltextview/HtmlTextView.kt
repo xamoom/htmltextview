@@ -14,6 +14,7 @@ import android.widget.TextView
 import org.jsoup.Jsoup
 import java.io.InputStream
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
@@ -201,13 +202,22 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
         // fontsize
         if (element.attributes().get("style").contains("font-size", true)) {
           val p1 = element.attributes().get("style")
-          val indexFontSizeValue = p1!!.indexOf("font-size:") + 10
-          val indexFontSizeSemiColon = p1!!.indexOf(";")
-          var fontSizeString = p1!!.substring(indexFontSizeValue, indexFontSizeSemiColon);
-          fontSizeString = fontSizeString.replace(" ", "")
 
-          val name = "<fontsize"+fontSizeString+"></fontsize"+fontSizeString+">";
-          element.wrap(name)
+          val styleTags = p1.split(";")
+          val styleMap = HashMap<String, String>()
+          for (tag in styleTags) {
+            val splitList = tag.split(":")
+            if (splitList.size == 2) {
+              styleMap.put(splitList[0].trim(), splitList[1].trim())
+            }
+          }
+
+          val fontSizeString = styleMap["font-size"]
+
+          if (fontSizeString != null) {
+            val name = "<fontsize$fontSizeString></fontsize$fontSizeString>"
+            element.wrap(name)
+          }
         }
       }
     }

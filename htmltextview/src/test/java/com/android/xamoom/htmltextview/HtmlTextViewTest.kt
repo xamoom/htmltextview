@@ -18,7 +18,7 @@ import org.robolectric.shadow.api.Shadow
 
 
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(22))
+@Config(manifest = "src/main/AndroidManifest.xml", constants = BuildConfig::class, sdk = intArrayOf(22))
 class HtmlTextViewTest {
   val context = RuntimeEnvironment.application
 
@@ -144,6 +144,24 @@ class HtmlTextViewTest {
         "\n  </htmltable>" +
         "\n </body>" +
         "\n</html>", textView.htmlString)
+  }
+
+  @Test
+  fun replaceFontSizeTest() {
+    val textView = HtmlTextView(context)
+
+    val htmlText = "<span style=\"line-height: 107%; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial; font-size: 24px;\"></span>"
+
+    textView.setHtmlText(htmlText)
+
+    assertEquals("<html>" +
+            "\n <head></head>" +
+            "\n <body>" +
+            "\n  <fontsize24px>" +
+            "\n   <span style=\"line-height: 107%; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial; font-size: 24px;\"></span>" +
+            "\n  </fontsize24px>" +
+            "\n </body>" +
+             "\n</html>", textView.htmlString);
   }
 
   @Test
