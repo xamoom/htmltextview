@@ -15,6 +15,6 @@ class MainActivity : AppCompatActivity() {
 
     htmlTextView = findViewById(R.id.html_text_view) as HtmlTextView
 
-    htmlTextView.setHtmlText(R.raw.test)
+    htmlTextView.setHtmlText(R.raw.dirty)
   }
 }
