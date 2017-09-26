@@ -72,6 +72,18 @@ class HtmlTextViewTest {
   }
 
   @Test
+  fun setHtmlSpanWithoutNewlines() {
+    val textView = HtmlTextView(context)
+    val htmlText = "<span style=\"font-weight: bold;\">Some text</span>"
+
+    textView.removeTrailingNewLines = true
+    textView.setHtmlText(htmlText)
+
+    assertNotNull(textView.htmlString)
+    assertFalse(textView.text.last().toString() == "\n")
+  }
+
+  @Test
   fun setHtmlTextWithTable() {
     val textView = HtmlTextView(context)
     val htmlText = "<table><tr><td></td></tr></table>"
