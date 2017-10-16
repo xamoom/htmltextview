@@ -77,7 +77,13 @@ class HtmlTable(html: String, paint: TextPaint) {
   private fun getRowStyle(element: Element) : Int? {
     element.attributes()
         .filter { it.html().contains("bgcolor", true) }
-        .forEach { return Color.parseColor(String.format("#%s", it.value)) }
+        .forEach {
+          var colorString = it.value
+          if (!colorString.contains("#")) {
+            colorString = String.format("#%s", colorString)
+          }
+          return Color.parseColor(colorString)
+        }
 
     return null
   }
