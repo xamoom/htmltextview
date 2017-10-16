@@ -80,8 +80,12 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
       // calculate relativeFontSize
       if (tag.contains(TAG_FONTSIZE)) {
         val relativeSpanSize = calculateFontsizeProportion(tag, textSize)
-        end(output as SpannableStringBuilder, FontSize::class.java,
-            RelativeSizeSpan(relativeSpanSize))
+        if (relativeSpanSize == null) {
+          end(output as SpannableStringBuilder, FontSize::class.java)
+        } else {
+          end(output as SpannableStringBuilder, FontSize::class.java,
+                  RelativeSizeSpan(relativeSpanSize))
+        }
       } else if (tag.contains(TAG_UNORDEREDLIST)) {
         lists.pop()
         listSizeChanged = true
@@ -150,9 +154,9 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
    * @param tag Custom fontsize html tag eg: fontsize18px
    * @param size Normal used size
    */
-  private fun calculateFontsizeProportion(tag: String, size: Float): Float {
+  private fun calculateFontsizeProportion(tag: String, size: Float): Float? {
     val sizeString = tag.replace("fontsize", "")
-    var newFontSize = 0.0f
+    var newFontSize: Float? = null
 
     if (sizeString.contains("px")) {
       val fontSize = sizeString.replace("px", "").toFloatOrNull()

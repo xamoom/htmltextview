@@ -200,10 +200,7 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
    */
   private fun replaceStyle(text: String): String {
     val document = Jsoup.parse(text)
-    val elements = document.select("span")
-    elements.addAll(document.select("span > span"))
-    elements.addAll(document.select("span > span > span"))
-    elements.addAll(document.select("span > span > span > span"))
+    val elements = document.select("*")
 
     for (element in elements) {
       if (element.attributes().hasKey("style")) {
