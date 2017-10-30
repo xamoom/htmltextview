@@ -13,7 +13,7 @@ It extends the textViews ability to also display:
 # Install
 
 ```
-compile 'com.xamoom.android:htmltextview:1.0.2'
+compile 'com.xamoom.android:htmltextview'
 ```
 
 

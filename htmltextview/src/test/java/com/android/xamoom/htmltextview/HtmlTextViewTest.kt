@@ -48,6 +48,42 @@ class HtmlTextViewTest {
   }
 
   @Test
+  fun setHtmlWithNewLines() {
+    val textView = HtmlTextView(context)
+    val htmlText = "<p style=\"font-weight: bold;\">Some Text</p>"
+
+    textView.setHtmlText(htmlText)
+
+    assertNotNull(textView.htmlString)
+    assertTrue(textView.text.last().toString() == "\n")
+  }
+
+
+  @Test
+  fun setHtmlWithoutNewlines() {
+    val textView = HtmlTextView(context)
+    val htmlText = "<p style=\"font-weight: bold;\">Some text</p>"
+
+    textView.removeTrailingNewLines = true
+    textView.setHtmlText(htmlText)
+
+    assertNotNull(textView.htmlString)
+    assertFalse(textView.text.last().toString() == "\n")
+  }
+
+  @Test
+  fun setHtmlSpanWithoutNewlines() {
+    val textView = HtmlTextView(context)
+    val htmlText = "<span style=\"font-weight: bold;\">Some text</span>"
+
+    textView.removeTrailingNewLines = true
+    textView.setHtmlText(htmlText)
+
+    assertNotNull(textView.htmlString)
+    assertFalse(textView.text.last().toString() == "\n")
+  }
+
+  @Test
   fun setHtmlTextWithTable() {
     val textView = HtmlTextView(context)
     val htmlText = "<table><tr><td></td></tr></table>"
@@ -75,7 +111,7 @@ class HtmlTextViewTest {
     textView.setHtmlText(R.raw.test, 0)
 
     assertNull(textView.htmlTagHandler)
-    //assertNotNull(textView.htmlString)
+    assertNotNull(textView.htmlString)
   }
 
   @Test

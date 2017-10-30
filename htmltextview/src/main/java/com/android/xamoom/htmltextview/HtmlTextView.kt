@@ -4,6 +4,7 @@ package com.android.xamoom.htmltextview
 import android.content.Context
 import android.content.res.Resources
 import android.text.Html
+import android.text.Spanned
 import android.text.TextPaint
 import android.text.method.LinkMovementMethod
 import android.util.AttributeSet
@@ -33,6 +34,8 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
   var tables: ArrayList<HtmlTable> = ArrayList()
   var htmlTagHandler: HtmlTagHandler? = null
 
+  var removeTrailingNewLines = false
+
   constructor(context: Context) : this(context, null)
 
   init {
@@ -59,11 +62,21 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
     if (tables.size > 0) {
       afterMeasured {
         htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, widthWithoutPadding())
-        text = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
+        var htmlText = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
+        if (removeTrailingNewLines) {
+          htmlText = removeTrailingNewLines(htmlText)
+        }
+
+        text = htmlText
       }
     } else {
       htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, 0)
-      text = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
+      var htmlText = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
+      if (removeTrailingNewLines) {
+        htmlText = removeTrailingNewLines(htmlText)
+      }
+
+      text = htmlText
     }
   }
 
@@ -81,7 +94,12 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
       setHtmlText(htmlString)
     } else {
       htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, maxTableWidth)
-      text = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
+      var htmlText = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
+      if (removeTrailingNewLines) {
+        htmlText = removeTrailingNewLines(htmlText)
+      }
+
+      text = htmlText
     }
   }
 
@@ -164,6 +182,12 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
     })
   }
 
+  private fun removeTrailingNewLines(spanned: Spanned): Spanned {
+    var newSpanned = spanned.removeSuffix("\n")
+    newSpanned = newSpanned.removeSuffix("\n")
+    return newSpanned as Spanned
+  }
+
   private fun densityTextSize(context: Context): Float {
     return textSize / context.resources.displayMetrics.density
   }
@@ -176,10 +200,7 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
    */
   private fun replaceStyle(text: String): String {
     val document = Jsoup.parse(text)
-    val elements = document.select("span")
-    elements.addAll(document.select("span > span"))
-    elements.addAll(document.select("span > span > span"))
-    elements.addAll(document.select("span > span > span > span"))
+    val elements = document.select("*")
 
     for (element in elements) {
       if (element.attributes().hasKey("style")) {
