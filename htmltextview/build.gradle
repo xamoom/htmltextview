@@ -1,10 +1,10 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-def versionString = "1.0.3"
+def versionString = "1.0.4"
 
 buildscript {
-    ext.kotlin_version = '1.1.4-3'
+    ext.kotlin_version = '1.1.51'
     repositories {
         jcenter()
     }
