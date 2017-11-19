@@ -201,6 +201,20 @@ class HtmlTextViewTest {
   }
 
   @Test
+  fun testRemovingOfComments() {
+    val textView = HtmlTextView(context)
+
+    var htmlText = "<!-- some comment -->"
+
+    textView.setHtmlText(htmlText)
+
+    assertEquals("<html>\n" +
+        " <head></head>\n" +
+        " <body></body>\n" +
+        "</html>", textView.htmlString)
+  }
+
+  @Test
   fun getTablesTest() {
     val textView = HtmlTextView(context)
 
@@ -211,5 +225,6 @@ class HtmlTextViewTest {
 
     assertEquals(2, textView.tables.size)
   }
+
 
 }

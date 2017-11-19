@@ -13,6 +13,8 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.TextView
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.nodes.Node
 import java.io.InputStream
 import java.util.*
 import kotlin.collections.HashMap
@@ -56,7 +58,7 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
    * @param htmlString String of html
    */
   fun setHtmlText(htmlString: String) {
-    this.htmlString = replaceStyle(htmlString)
+    this.htmlString = prepareHtmlString(htmlString)
     tables = tablesFromHtml(htmlString, paint)
 
     if (tables.size > 0) {
@@ -87,7 +89,7 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
    * @param maxTableWidth Max width to scale table to
    */
   fun setHtmlText(htmlString: String, maxTableWidth: Int = 0) {
-    this.htmlString = replaceStyle(htmlString)
+    this.htmlString = prepareHtmlString(htmlString)
     tables = tablesFromHtml(htmlString, paint)
 
     if (maxTableWidth == 0 && tables.size > 0) {
@@ -192,14 +194,19 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
     return textSize / context.resources.displayMetrics.density
   }
 
+  private fun prepareHtmlString(text: String): String {
+    val document = Jsoup.parse(text)
+    removeComments(document)
+    return replaceStyle(document)
+  }
+
   /**
    * Replaces non supported html with textview supported htmltags and replaces
    * tags with custom tags to enable the tagHandler to handle them.
    *
    * @param text String of html
    */
-  private fun replaceStyle(text: String): String {
-    val document = Jsoup.parse(text)
+  private fun replaceStyle(document: Document): String {
     val elements = document.select("*")
 
     for (element in elements) {
@@ -274,6 +281,19 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
     }
 
     return document.html()
+  }
+
+  private fun removeComments(node: Node) {
+    var i = 0
+    while (i < node.childNodeSize()) {
+      val child = node.childNode(i)
+      if (child.nodeName().equals("#comment"))
+        child.remove()
+      else {
+        removeComments(child)
+        i++
+      }
+    }
   }
 
   fun widthWithoutPadding(): Int {
