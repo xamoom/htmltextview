@@ -20,7 +20,6 @@ import org.robolectric.annotation.Config
 
 
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(22))
 class HtmlTagHandlerTest {
   var tagHandler: HtmlTagHandler? = null
   var spannableMock: Editable? = null
