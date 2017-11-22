@@ -25,6 +25,7 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
     @JvmStatic val TAG_TABLE_CELL = "tablecell"
   }
 
+  var TAG = "HtmlTagHandler"
   val paragraphIndent = 30
   val bulletMargin = 10
 
@@ -112,8 +113,11 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
             listSizeChanged = false
             return
           }
+
+          val currentNumber = currentNumberSpanString()
           val numberSpan = NumberSpan(calculateListItemOffset(),
-              currentNumberSpanString(), textPaint)
+              currentNumber, textPaint)
+
           end(text as SpannableStringBuilder, ListItem::class.java, numberSpan)
         }
       } else if (tag.contentEquals(TAG_TABLE_ROW)) {
