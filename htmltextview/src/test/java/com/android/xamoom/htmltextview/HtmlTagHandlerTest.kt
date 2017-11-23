@@ -68,6 +68,21 @@ class HtmlTagHandlerTest {
   }
 
   @Test
+  fun testHandleNestedTagFontsize() {
+    tagHandler?.handleTag(true, "fontsize5px", spannableMock, null)
+    tagHandler?.handleTag(true, "fontsize20px", spannableMock, null)
+    spannableMock?.append("Something")
+    tagHandler?.handleTag(false, "fontsize20px", spannableMock, null)
+    tagHandler?.handleTag(false, "fontsize5px", spannableMock, null)
+
+    val fontSizeCapture = ArgumentCaptor.forClass(RelativeSizeSpan::class.java)
+    Mockito.verify(spannableMock!!, Mockito.times(4)).setSpan(fontSizeCapture.capture(),
+        Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())
+    Assert.assertEquals(4.0f, fontSizeCapture.allValues[2].sizeChange)
+    Assert.assertEquals(0.5f, fontSizeCapture.allValues[3].sizeChange)
+  }
+
+  @Test
   fun testHandlerTagUnorderedList() {
     tagHandler?.handleTag(true, HtmlTagHandler.TAG_UNORDEREDLIST, spannableMock, null)
 

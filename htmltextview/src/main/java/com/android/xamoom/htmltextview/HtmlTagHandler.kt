@@ -87,9 +87,8 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
       if (tag.contains(TAG_FONTSIZE)) {
 
         var encapsulatedFontSize = textSize
-        val outerFontSize = fontSizeStack.peek()
-        if (outerFontSize != null) {
-          encapsulatedFontSize = outerFontSize
+        if (fontSizeStack.size > 1) {
+          encapsulatedFontSize = fontSizeStack.peek()
         }
 
         val relativeSpanSize = calculateFontsizeProportion(tag, encapsulatedFontSize)
