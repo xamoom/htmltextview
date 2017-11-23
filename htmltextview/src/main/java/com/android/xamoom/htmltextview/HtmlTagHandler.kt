@@ -36,6 +36,7 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
   var tableStack: Stack<HtmlTable> = Stack()
   var tableRowBackgroundColors: Stack<Int> = Stack()
   var tableCells: Stack<String> = Stack()
+  var fontSizeStack: PriorityQueue<Float> = PriorityQueue()
 
   var listSizeChanged = false
 
@@ -55,6 +56,10 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
 
     if(opening){
       if (tag.contains(TAG_FONTSIZE)) {
+        val fontSize = fontSizeFromTag(tag)
+        if (fontSize != null) {
+          fontSizeStack.add(fontSize)
+        }
         start(output as SpannableStringBuilder, FontSize())
       } else if (tag.contains(TAG_UNORDEREDLIST)) {
         lists.add(tag)
@@ -80,13 +85,21 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
     } else {
       // calculate relativeFontSize
       if (tag.contains(TAG_FONTSIZE)) {
-        val relativeSpanSize = calculateFontsizeProportion(tag, textSize)
+
+        var encapsulatedFontSize = textSize
+        val outerFontSize = fontSizeStack.peek()
+        if (outerFontSize != null) {
+          encapsulatedFontSize = outerFontSize
+        }
+
+        val relativeSpanSize = calculateFontsizeProportion(tag, encapsulatedFontSize)
         if (relativeSpanSize == null) {
           end(output as SpannableStringBuilder, FontSize::class.java)
         } else {
           end(output as SpannableStringBuilder, FontSize::class.java,
                   RelativeSizeSpan(relativeSpanSize))
         }
+        fontSizeStack.poll()
       } else if (tag.contains(TAG_UNORDEREDLIST)) {
         lists.pop()
         listSizeChanged = true
@@ -159,17 +172,23 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
    * @param size Normal used size
    */
   private fun calculateFontsizeProportion(tag: String, size: Float): Float? {
-    val sizeString = tag.replace("fontsize", "")
     var newFontSize: Float? = null
 
-    if (sizeString.contains("px")) {
-      val fontSize = sizeString.replace("px", "").toFloatOrNull()
-      if (fontSize != null) {
-        newFontSize = fontSize / size
-      }
+    val fontSize = fontSizeFromTag(tag)
+    if (fontSize != null) {
+      newFontSize = fontSize / size
     }
 
     return newFontSize
+  }
+
+  private fun fontSizeFromTag(tag: String): Float? {
+    val sizeString = tag.replace("fontsize", "")
+    if (sizeString.contains("px")) {
+      return sizeString.replace("px", "").toFloatOrNull()
+    }
+
+    return null
   }
 
   /**
