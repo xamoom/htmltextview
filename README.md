@@ -8,7 +8,7 @@ It extends the textViews ability to also display:
 * inline styles (font-weight: bold, text-decoration: underline, font-style: italic, font-size)
 * nested ol
 * nested ul
-* tables
+* simple tables
 
 # Install
 

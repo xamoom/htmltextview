@@ -25,6 +25,7 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
     @JvmStatic val TAG_TABLE_CELL = "tablecell"
   }
 
+  var TAG = "HtmlTagHandler"
   val paragraphIndent = 30
   val bulletMargin = 10
 
@@ -35,6 +36,7 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
   var tableStack: Stack<HtmlTable> = Stack()
   var tableRowBackgroundColors: Stack<Int> = Stack()
   var tableCells: Stack<String> = Stack()
+  var fontSizeStack: PriorityQueue<Float> = PriorityQueue()
 
   var listSizeChanged = false
 
@@ -54,6 +56,10 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
 
     if(opening){
       if (tag.contains(TAG_FONTSIZE)) {
+        val fontSize = fontSizeFromTag(tag)
+        if (fontSize != null) {
+          fontSizeStack.add(fontSize)
+        }
         start(output as SpannableStringBuilder, FontSize())
       } else if (tag.contains(TAG_UNORDEREDLIST)) {
         lists.add(tag)
@@ -79,13 +85,20 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
     } else {
       // calculate relativeFontSize
       if (tag.contains(TAG_FONTSIZE)) {
-        val relativeSpanSize = calculateFontsizeProportion(tag, textSize)
+
+        var encapsulatedFontSize = textSize
+        if (fontSizeStack.size > 1) {
+          encapsulatedFontSize = fontSizeStack.peek()
+        }
+
+        val relativeSpanSize = calculateFontsizeProportion(tag, encapsulatedFontSize)
         if (relativeSpanSize == null) {
           end(output as SpannableStringBuilder, FontSize::class.java)
         } else {
           end(output as SpannableStringBuilder, FontSize::class.java,
                   RelativeSizeSpan(relativeSpanSize))
         }
+        fontSizeStack.poll()
       } else if (tag.contains(TAG_UNORDEREDLIST)) {
         lists.pop()
         listSizeChanged = true
@@ -112,8 +125,11 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
             listSizeChanged = false
             return
           }
+
+          val currentNumber = currentNumberSpanString()
           val numberSpan = NumberSpan(calculateListItemOffset(),
-              currentNumberSpanString(), textPaint)
+              currentNumber, textPaint)
+
           end(text as SpannableStringBuilder, ListItem::class.java, numberSpan)
         }
       } else if (tag.contentEquals(TAG_TABLE_ROW)) {
@@ -155,17 +171,23 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
    * @param size Normal used size
    */
   private fun calculateFontsizeProportion(tag: String, size: Float): Float? {
-    val sizeString = tag.replace("fontsize", "")
     var newFontSize: Float? = null
 
-    if (sizeString.contains("px")) {
-      val fontSize = sizeString.replace("px", "").toFloatOrNull()
-      if (fontSize != null) {
-        newFontSize = fontSize / size
-      }
+    val fontSize = fontSizeFromTag(tag)
+    if (fontSize != null) {
+      newFontSize = fontSize / size
     }
 
     return newFontSize
+  }
+
+  private fun fontSizeFromTag(tag: String): Float? {
+    val sizeString = tag.replace("fontsize", "")
+    if (sizeString.contains("px")) {
+      return sizeString.replace("px", "").toFloatOrNull()
+    }
+
+    return null
   }
 
   /**
