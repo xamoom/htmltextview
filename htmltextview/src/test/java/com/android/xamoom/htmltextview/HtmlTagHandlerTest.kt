@@ -20,7 +20,6 @@ import org.robolectric.annotation.Config
 
 
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(22))
 class HtmlTagHandlerTest {
   var tagHandler: HtmlTagHandler? = null
   var spannableMock: Editable? = null
@@ -66,6 +65,21 @@ class HtmlTagHandlerTest {
     Mockito.verify(spannableMock!!, Mockito.times(2)).setSpan(fontSizeCapture.capture(),
         Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())
     Assert.assertEquals(1.8f, fontSizeCapture.allValues[1].sizeChange)
+  }
+
+  @Test
+  fun testHandleNestedTagFontsize() {
+    tagHandler?.handleTag(true, "fontsize5px", spannableMock, null)
+    tagHandler?.handleTag(true, "fontsize20px", spannableMock, null)
+    spannableMock?.append("Something")
+    tagHandler?.handleTag(false, "fontsize20px", spannableMock, null)
+    tagHandler?.handleTag(false, "fontsize5px", spannableMock, null)
+
+    val fontSizeCapture = ArgumentCaptor.forClass(RelativeSizeSpan::class.java)
+    Mockito.verify(spannableMock!!, Mockito.times(4)).setSpan(fontSizeCapture.capture(),
+        Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())
+    Assert.assertEquals(4.0f, fontSizeCapture.allValues[2].sizeChange)
+    Assert.assertEquals(0.5f, fontSizeCapture.allValues[3].sizeChange)
   }
 
   @Test
