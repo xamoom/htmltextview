@@ -18,6 +18,7 @@ import org.robolectric.shadow.api.Shadow
 
 
 @RunWith(RobolectricTestRunner::class)
+@Config(constants = BuildConfig::class, manifest="htmltextview/src/main/AndroidManifest.xml", sdk = intArrayOf(21))
 class HtmlTextViewTest {
   val context = RuntimeEnvironment.application
 
