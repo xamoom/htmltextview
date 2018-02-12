@@ -130,7 +130,7 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
 
           val currentNumber = currentNumberSpanString()
           val numberSpan = NumberSpan(calculateListItemOffset(),
-              currentNumber, textPaint)
+              currentNumber, textPaint, layoutDirection)
 
           end(text as SpannableStringBuilder, ListItem::class.java, numberSpan)
         }

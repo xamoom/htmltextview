@@ -322,4 +322,3 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
     return tables
   }
 }
-
