@@ -3,6 +3,7 @@ package com.android.xamoom.htmltextview
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.TextPaint
+import android.view.View
 import com.android.xamoom.htmltextview.Spans.NumberSpan
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyFloat
@@ -18,7 +19,7 @@ class NumberSpanTest {
     val mockPaint = Mockito.mock(TextPaint::class.java)
     Mockito.`when`(mockPaint.measureText(anyString())).thenReturn(10.0f)
 
-    val numberSpan = NumberSpan(30, "1", mockPaint)
+    val numberSpan = NumberSpan(30, "1", mockPaint, View.LAYOUT_DIRECTION_LTR)
 
     // test first true
     numberSpan.drawLeadingMargin(mockCanvas, mockPaint, 0,0,0,0,0,

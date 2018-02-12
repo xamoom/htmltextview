@@ -5,6 +5,7 @@ import android.text.TextPaint
 import android.text.style.BulletSpan
 import android.text.style.LeadingMarginSpan
 import android.text.style.RelativeSizeSpan
+import android.view.View
 import com.android.xamoom.htmltextview.Spans.CustomBulletSpan
 import com.android.xamoom.htmltextview.Spans.NumberSpan
 import com.android.xamoom.htmltextview.Spans.TableCellSpan
@@ -26,7 +27,8 @@ class HtmlTagHandlerTest {
 
   @Before
   fun setup() {
-    tagHandler = HtmlTagHandler(10.0f, TextPaint(), ArrayList<HtmlTable>(), 100)
+    tagHandler = HtmlTagHandler(10.0f, TextPaint(), ArrayList<HtmlTable>(), 100,
+        View.LAYOUT_DIRECTION_LTR)
     spannableMock = Mockito.spy(Editable.Factory().newEditable(""))
   }
 
@@ -35,7 +37,8 @@ class HtmlTagHandlerTest {
     val tables = ArrayList<HtmlTable>()
     tables.add(HtmlTable("", TextPaint()))
 
-    val tagHandler = HtmlTagHandler(0.0f, TextPaint(), tables, 0)
+    val tagHandler = HtmlTagHandler(0.0f, TextPaint(), tables, 0,
+        View.LAYOUT_DIRECTION_LTR)
 
     Assert.assertEquals(1, tagHandler.tableStack.size)
   }
