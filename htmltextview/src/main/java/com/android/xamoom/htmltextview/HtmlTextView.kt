@@ -37,6 +37,7 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
   var htmlTagHandler: HtmlTagHandler? = null
 
   var removeTrailingNewLines = false
+  var currentLayoutDirection = resources.configuration.layoutDirection
 
   constructor(context: Context) : this(context, null)
 
@@ -63,7 +64,8 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
 
     if (tables.size > 0) {
       afterMeasured {
-        htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, widthWithoutPadding())
+        htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables,
+            widthWithoutPadding(), currentLayoutDirection)
         var htmlText = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
         if (removeTrailingNewLines) {
           htmlText = removeTrailingNewLines(htmlText)
@@ -72,7 +74,8 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
         text = htmlText
       }
     } else {
-      htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, 0)
+      htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, 0,
+          currentLayoutDirection)
       var htmlText = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
       if (removeTrailingNewLines) {
         htmlText = removeTrailingNewLines(htmlText)
@@ -95,7 +98,8 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
     if (maxTableWidth == 0 && tables.size > 0) {
       setHtmlText(htmlString)
     } else {
-      htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, maxTableWidth)
+      htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, maxTableWidth,
+          currentLayoutDirection)
       var htmlText = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
       if (removeTrailingNewLines) {
         htmlText = removeTrailingNewLines(htmlText)

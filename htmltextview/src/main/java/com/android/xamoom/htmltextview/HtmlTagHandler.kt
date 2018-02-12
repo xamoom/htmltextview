@@ -3,6 +3,7 @@ package com.android.xamoom.htmltextview
 import android.text.*
 import android.text.style.LeadingMarginSpan
 import android.text.style.RelativeSizeSpan
+import android.util.LayoutDirection
 import android.util.Log
 import com.android.xamoom.htmltextview.Spans.CustomBulletSpan
 import com.android.xamoom.htmltextview.Spans.NumberSpan
@@ -12,7 +13,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
-                     tables: ArrayList<HtmlTable>, var maxTableWidth: Int) : Html.TagHandler {
+                     tables: ArrayList<HtmlTable>, var maxTableWidth: Int,
+                     var layoutDirection: Int) : Html.TagHandler {
 
   companion object {
     var DEBUG = false
@@ -115,7 +117,7 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
             listSizeChanged = false
             return
           }
-          val bullet = CustomBulletSpan(bulletMargin, calculateListItemOffset())
+          val bullet = CustomBulletSpan(bulletMargin, calculateListItemOffset(), layoutDirection)
           end(text as SpannableStringBuilder, ListItem::class.java,
               LeadingMarginSpan.Standard(paragraphIndent), bullet)
         } else { // ols
