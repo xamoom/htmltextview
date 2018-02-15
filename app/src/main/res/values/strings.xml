@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">htmltextview-example</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="action_scroll">ScrollView</string>
+    <string name="action_recycler">RecyclerView</string>
 </resources>

@@ -7,23 +7,9 @@
     android:layout_height="match_parent"
     tools:context="com.android.xamoom.htmltextview_example.MainActivity">
 
-
-    <ScrollView
+    <FrameLayout
+        android:id="@+id/main_frame_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.android.xamoom.htmltextview.HtmlTextView
-            android:id="@+id/html_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="start"
-            android:textDirection="locale"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:padding="8dp"/>
-
-    </ScrollView>
+        android:layout_height="match_parent" />
 
 </android.support.constraint.ConstraintLayout>
