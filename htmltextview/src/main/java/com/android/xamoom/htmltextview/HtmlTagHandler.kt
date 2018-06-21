@@ -13,8 +13,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
-                     tables: ArrayList<HtmlTable>, var maxTableWidth: Int,
-                     var layoutDirection: Int) : Html.TagHandler {
+                     tables: ArrayList<HtmlTable>, var maxTableWidth: Int, var bulletMargin: Int = 10) : Html.TagHandler {
 
   companion object {
     var DEBUG = false
@@ -29,7 +28,6 @@ class HtmlTagHandler(var textSize: Float, var textPaint: TextPaint,
 
   var TAG = "HtmlTagHandler"
   val paragraphIndent = 30
-  val bulletMargin = 10
 
   var lists: Stack<String> = Stack()
   var orderedListItems: ArrayList<Int> = ArrayList()

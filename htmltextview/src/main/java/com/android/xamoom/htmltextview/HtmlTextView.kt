@@ -20,7 +20,7 @@ import java.util.*
 import kotlin.collections.HashMap
 
 
-class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
+class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?, var bulletMargin: Int) :
     TextView(context, attributeSet) {
   val TAG = "HtmlTextView"
 
@@ -37,9 +37,8 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
   var htmlTagHandler: HtmlTagHandler? = null
 
   var removeTrailingNewLines = false
-  var currentLayoutDirection = resources.configuration.layoutDirection
 
-  constructor(context: Context) : this(context, null)
+  constructor(context: Context) : this(context, null, 0)
 
   init {
     movementMethod = LinkMovementMethod.getInstance()
@@ -64,8 +63,7 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
 
     if (tables.size > 0) {
       afterMeasured {
-        htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables,
-            widthWithoutPadding(), currentLayoutDirection)
+        htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, widthWithoutPadding(), bulletMargin)
         var htmlText = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
         if (removeTrailingNewLines) {
           htmlText = removeTrailingNewLines(htmlText)
@@ -74,8 +72,7 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
         text = htmlText
       }
     } else {
-      htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, 0,
-          currentLayoutDirection)
+      htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, 0, bulletMargin)
       var htmlText = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
       if (removeTrailingNewLines) {
         htmlText = removeTrailingNewLines(htmlText)
@@ -98,8 +95,7 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
     if (maxTableWidth == 0 && tables.size > 0) {
       setHtmlText(htmlString)
     } else {
-      htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, maxTableWidth,
-          currentLayoutDirection)
+      htmlTagHandler = HtmlTagHandler(densityTextSize(context), paint, tables, maxTableWidth, bulletMargin)
       var htmlText = Html.fromHtml(this.htmlString, null, htmlTagHandler!!)
       if (removeTrailingNewLines) {
         htmlText = removeTrailingNewLines(htmlText)
@@ -322,3 +318,4 @@ class HtmlTextView constructor(context: Context, attributeSet: AttributeSet?) :
     return tables
   }
 }
+
